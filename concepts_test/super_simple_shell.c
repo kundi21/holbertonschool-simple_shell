@@ -32,7 +32,7 @@ int main(void)
 		{
 			if (fork() == 0)
 			{
-				execl("/bin/ls", "ls", "-l", "/tmp", NULL);
+				execl("/bin/ls", "ls", ".", NULL);
 				return (0);
 			}
 			wait(NULL);

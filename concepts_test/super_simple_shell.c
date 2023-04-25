@@ -30,8 +30,6 @@ int main(void)
 
 		if (strstr(buffer, "/bin/ls") != NULL)
 		{
-		for (i = 0; i < 5; i++)
-		{
 			if (fork() == 0)
 			{
 				execl("/bin/ls", "ls", "-l", "/tmp", NULL);
@@ -39,8 +37,6 @@ int main(void)
 			}
 			wait(NULL);
 		}
-		}
-
 		free(buffer);
 	}
 	return (0);

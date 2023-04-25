@@ -1,12 +1,20 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-int main(int argc, char **argv, char **envp)
+extern char **environ;
+
+char *main(char *pathname)
 {
-	while(*envp != NULL)
+	int i;
+	char *envp;
+
+	for(i = 0; environ[i] != NULL; i++)
 	{
-		printf("%s\n", *envp);
-		envp++;
+		if(strstr(environ[i], pathname))
+		{
+			envp = environ[i];
+			envp = strcpy(envp, environ[i]);
+		}
 	}
-	return (0);
+	return (envp);
 }

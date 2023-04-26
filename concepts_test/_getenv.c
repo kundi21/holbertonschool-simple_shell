@@ -1,9 +1,13 @@
 #include "shell.h"
+<<<<<<< HEAD
 
 /**
  * _getenv - function
  */
 
+=======
+/**
+>>>>>>> cb2dadfe67fa8dde8b43db052497c2b16e31a7ab
 char* _getenv(const char* name)
 {
 	extern char **environ;
@@ -21,3 +25,7 @@ char* _getenv(const char* name)
 	}
 	return (envp);
 }
+<<<<<<< HEAD
+=======
+*/
+>>>>>>> cb2dadfe67fa8dde8b43db052497c2b16e31a7ab

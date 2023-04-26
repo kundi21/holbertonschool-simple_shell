@@ -1,9 +1,27 @@
 #include "shell.h"
+#include "_getenv.c"
 
 
 /**
  * main - sistem
  */
+char* _getenv(const char* name)
+{
+        extern char **environ;
+        int i;
+        char *envp;
+
+        for(i = 0; environ[i] != NULL; i++)
+        {
+                if(strstr(environ[i], name))
+                {
+                        envp = environ[i];
+                        envp = strcpy(envp, environ[i]);
+                }
+                envp++;
+        }
+        return (envp);
+}
 
 int main(int argc, char *argv[], char *envp[])
 {
@@ -41,12 +59,12 @@ int main(int argc, char *argv[], char *envp[])
 			printf("Bye\n");
 			break;
 		}
+		/*getenv para pasarle como 3er parametro al execve*/
+		
 		/* falta fork y arreglar execve*/
-		if (fork() == 0)
-		{
+		
 		execve(tokens[0], tokens, envp);
-		}
-		wait(NULL);
+		
 		free(buffer);
 	}
 	return (0);

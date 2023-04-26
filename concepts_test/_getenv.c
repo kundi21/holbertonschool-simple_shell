@@ -1,5 +1,5 @@
 #include "shell.h"
-
+/**
 char* _getenv(const char* name)
 {
 	extern char **environ;
@@ -17,11 +17,4 @@ char* _getenv(const char* name)
 	}
 	return (envp);
 }
-
-int main()
-{
-	char* path = _getenv("PATH");
-	printf("PATH=%s\n", path);
-
-	return (0);
-}
+*/

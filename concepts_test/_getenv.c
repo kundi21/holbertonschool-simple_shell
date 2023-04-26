@@ -1,14 +1,18 @@
 #include "shell.h"
 
+/**
+ * _getenv - function
+ */
+
 char* _getenv(const char* name)
 {
 	extern char **environ;
 	int i;
 	char *envp;
 
-	for(i = 0; environ[i] != NULL; i++)
+	for (i = 0; environ[i] != NULL; i++)
 	{
-		if(strstr(environ[i], name))
+		if (strstr(environ[i], name))
 		{
 			envp = environ[i];
 			envp = strcpy(envp, environ[i]);
@@ -16,12 +20,4 @@ char* _getenv(const char* name)
 		envp++;
 	}
 	return (envp);
-}
-
-int main()
-{
-	char* path = _getenv("PATH");
-	printf("PATH=%s\n", path);
-
-	return (0);
 }

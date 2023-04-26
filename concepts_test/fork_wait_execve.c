@@ -1,8 +1,9 @@
 #include "shell.h"
 
 /**
- * main - sis
+ * main - sistem
  *
+ * Return: always 0, success
  */
 
 int main(void)

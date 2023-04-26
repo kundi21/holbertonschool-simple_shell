@@ -12,5 +12,6 @@
 #include <sys/wait.h>
 
 char *_getenv(const char *name);
+void _execvp(char *cmd, char **args, char **envp);
 
 #endif

@@ -70,8 +70,11 @@ void _execvp(char *cmd, char **args, char **envp)
 int main(int argc, char *argv[], char *envp[])
 {
 	char *buffer, *token, *tokens[64];
-	size_t bufsize = 1024, ret = 0;
-	int i = 0, j = 0;
+	size_t bufsize = 1024;
+	ssize_t ret = 0;
+	int i = 0;
+	(void)argc;
+	(void)argv;
 
 	while (1)
 	{
@@ -128,4 +131,6 @@ int processes(char **tokens, char **envp)
 		perror("fork");
 	else
 		wait(NULL);
+
+	return (0);
 }

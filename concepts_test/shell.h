@@ -11,7 +11,10 @@
 #include <string.h>
 #include <sys/wait.h>
 
+extern char **environ;
+
 char *_getenv(const char *name);
 void _execvp(char *cmd, char **args, char **envp);
+int processes(char **tokens, char **envp);
 
 #endif

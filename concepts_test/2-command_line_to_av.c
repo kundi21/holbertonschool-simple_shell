@@ -14,6 +14,14 @@ int main (void)
 	size_t bufsize = 1024;
 	size_t ret = 0;
 	char *token;
+	char *tokens[64];
+	int i = 0;
+	int j = 0;
+
+
+	for (j = 0; j < 64; j++){
+		tokens[j] = NULL;
+	}
 
 	printf("$ ");
 
@@ -28,8 +36,13 @@ int main (void)
 	   /* walk through other tokens */
 	while (token)
 	{
-		printf( " %s\n", token );
+		tokens[i] = token;
 		token = strtok(NULL, " \n");
+		i++;	
+	}
+
+	for (j = 0; tokens[j]; j++){
+		printf("[%d]: %s\n", j, tokens[j]);
 	}
 
 	return (0);

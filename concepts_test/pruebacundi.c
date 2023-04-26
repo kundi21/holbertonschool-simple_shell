@@ -41,9 +41,12 @@ int main(int argc, char *argv[], char *envp[])
 			printf("Bye\n");
 			break;
 		}
-
+		/* falta fork y arreglar execve*/
+		if (fork() == 0)
+		{
 		execve(tokens[0], tokens, envp);
-
+		}
+		wait(NULL);
 		free(buffer);
 	}
 	return (0);

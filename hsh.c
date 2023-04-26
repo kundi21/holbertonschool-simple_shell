@@ -94,7 +94,7 @@ int main(int argc, char *argv[], char *envp[])
 
 		if (strcmp(buffer, "exit\n") == 0 || ret == -1)
 		{
-			printf("Bye\n");
+			free(buffer);
 			break;
 		}
 

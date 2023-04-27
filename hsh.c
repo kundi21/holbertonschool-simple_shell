@@ -69,7 +69,7 @@ void _execvp(char *cmd, char **args, char **envp)
 
 int main(int argc, char *argv[], char *envp[])
 {
-	char *buffer, *token, *tokens[64];
+	char *buffer = NULL, *token, *tokens[64];
 	size_t bufsize = 1024;
 	ssize_t ret = 0;
 	int i = 0;
@@ -92,8 +92,9 @@ int main(int argc, char *argv[], char *envp[])
 			i++;
 		}
 
-		if (strcmp(buffer, "exit\n") == 0 || ret == -1)
+		if (ret == -1)
 		{
+			printf("\n");
 			free(buffer);
 			break;
 		}

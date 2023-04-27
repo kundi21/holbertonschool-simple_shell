@@ -26,7 +26,6 @@ int main(int argc, char *argv[], char *envp[])
 		if (isatty(STDIN_FILENO) == 1)
 			printf("$ ");
 
-		buffer = malloc(sizeof(char) * bufsize);
 		ret = getline(&buffer, &bufsize, stdin);
 
 		token = strtok(buffer, " \n");
@@ -37,6 +36,7 @@ int main(int argc, char *argv[], char *envp[])
 			token = strtok(NULL, " \n");
 			i++;
 		}
+
 		if (ret == -1)
 		{
 			free(buffer);
@@ -52,8 +52,6 @@ int main(int argc, char *argv[], char *envp[])
 		buffer = NULL;
 		i = 0;
 	}
-	free(buffer);
-	buffer = NULL;
 	return (0);
 }
 

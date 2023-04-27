@@ -94,7 +94,7 @@ int main(int argc, char *argv[], char *envp[])
 
 		if (ret == -1)
 		{
-			printf("\n");
+			free(stderr);
 			free(buffer);
 			break;
 		}

@@ -15,7 +15,7 @@
 int main(int argc, char *argv[], char *envp[])
 {
 	char *buffer = NULL, *token, *tokens[64];
-	size_t bufsize = 1024;
+	size_t bufsize = 512;
 	ssize_t ret = 0;
 	int i = 0;
 	(void)argc;
@@ -51,6 +51,7 @@ int main(int argc, char *argv[], char *envp[])
 		free(buffer);
 		buffer = NULL;
 		i = 0;
+		memset(tokens, 0, sizeof(tokens));
 	}
 	return (0);
 }
@@ -72,14 +73,12 @@ int processes(char **tokens, char **envp)
 
 	if (pid == -1)
 	{
-		perror("Error");
 		return (-1);
 	}
 
 	if (pid == 0)
 	{
 		_execvp(tokens[0], tokens, envp);
-		perror("execve failed");
 		exit(EXIT_FAILURE);
 	}
 	else
@@ -110,6 +109,7 @@ char *_getenv(const char *name)
 			return (envp);
 		}
 	}
+	free(envp);
 	return (NULL);
 }
 
@@ -146,5 +146,6 @@ void _execvp(char *cmd, char **args, char **envp)
 		free(cmd_path);
 		path_token = strtok(NULL, ":");
 	}
-	exit(127);
+	free(path_env);
+	exit(1);
 }

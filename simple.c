@@ -15,7 +15,7 @@
 int main(int argc, char *argv[], char *envp[])
 {
 	char *buffer = NULL, *token, *tokens[64];
-	size_t bufsize = 512;
+	size_t bufsize = 0;
 	ssize_t ret = 0;
 	int i = 0;
 	(void)argc;
@@ -51,8 +51,9 @@ int main(int argc, char *argv[], char *envp[])
 		free(buffer);
 		buffer = NULL;
 		i = 0;
-		memset(tokens, 0, sizeof(tokens));
 	}
+	free(buffer);
+	buffer = NULL;
 	return (0);
 }
 

@@ -11,48 +11,53 @@
 char *_getenv(const char *name)
 {
 	int i;
-	char *envp;
+	char *envp = NULL;
 
 	for (i = 0; environ[i] != NULL; i++)
 	{
-		if (strstr(environ[i], name))
+		if (strncmp(environ[i], name, strlen(name)) == 0)
 		{
-			envp = environ[i];
-			envp = strcpy(envp, environ[i]);
+			envp = strdup(environ[i] + strlen(name) + 1);
+			return (envp);
 		}
-		envp++;
 	}
-	return (envp);
+	return (NULL);
 }
 
 /**
  * _execvp - the function to find specific comands at the bin directory
  *
- * @cmd: comand
- *
- * @args: argument
+ * @av: command
  *
  * @envp: environ
+ *
+ * Return: success.
  */
 
-void _execvp(char *cmd, char **args, char **envp)
+char *_execvp(char *av[], char **envp)
 {
 	char *path_env = _getenv("PATH");
 	char *path_token = strtok(path_env, ":");
+	char *cmd = av[0];
+	char *cmd_path;
 
 	while (path_token != NULL)
 	{
-		char *cmd_path = malloc(strlen(path_token) + strlen(cmd) + 2);
-
+		cmd_path = malloc(strlen(path_token) + strlen(cmd) + 2);
 		sprintf(cmd_path, "%s/%s", path_token, cmd);
-
-		execve(cmd_path, args, envp);
-
-		free(cmd_path);
 		path_token = strtok(NULL, ":");
+		if (access(cmd_path, F_OK) == 0)
+		{
+			execve(cmd_path, av, envp);
+			free(cmd_path);
+			free(path_env);
+			return (NULL);
+		}
+		free(cmd_path);
 	}
-	fprintf(stderr, "%s: command not found\n", cmd);
-	exit(1);
+
+	free(path_env);
+	return (NULL);
 }
 
 /**
@@ -76,34 +81,35 @@ int main(int argc, char *argv[], char *envp[])
 	(void)argc;
 	(void)argv;
 
+	buffer = malloc(bufsize);
 	while (1)
 	{
 		if (isatty(STDIN_FILENO) == 1)
 			printf("$ ");
 
-		buffer = malloc(sizeof(char) * bufsize);
 		ret = getline(&buffer, &bufsize, stdin);
-		token = strtok(buffer, " \n");
+		if (ret == -1)
+		{
+			free(buffer);
+			break;
+		}
 
+		i = 0;
+		token = strtok(buffer, " \n");
 		while (token)
 		{
+			if (strcmp(buffer, "exit") == 0)
+			{
+				free(buffer);
+				exit(EXIT_SUCCESS);
+			}
 			tokens[i] = token;
 			token = strtok(NULL, " \n");
 			i++;
 		}
 
-		if (ret == -1)
-		{
-			free(stderr);
-			free(buffer);
-			break;
-		}
-
 		tokens[i] = NULL;
 		processes(tokens, envp);
-
-		free(buffer);
-		i = 0;
 	}
 	return (0);
 }
@@ -118,20 +124,38 @@ int main(int argc, char *argv[], char *envp[])
  * Return: different cases for the comand line inputs
  */
 
-int processes(char **tokens, char **envp)
+void processes(char **commands, char **envp)
 {
-	int pid = fork();
+	char **tokens;
+	char *path;
+	pid_t pid;
+	int status;
+
+	tokens = tokenize(commands);
+	path = _execvp(tokens, envp);
+
+	pid = fork();
+	if (pid == -1)
+	{
+		perror("Error");
+	}
 
 	if (pid == 0)
 	{
-		_execvp(tokens[0], tokens, envp);
-		perror("execve");
-		exit(1);
+		if (path == NULL)
+		{
+			perror("Error");
+			exit(EXIT_FAILURE);
+		}
+		execve(path, tokens, envp);
+		exit(EXIT_FAILURE);
 	}
-	else if (pid == -1)
-		perror("fork");
 	else
-		wait(NULL);
-
-	return (0);
+	{
+		do {
+			waitpid(pid, &status, WUNTRACED);
+		} while (!WIFEXITED(status) && !WIFSIGNALED(status));
+	}
+	free(tokens);
+	free(path);
 }

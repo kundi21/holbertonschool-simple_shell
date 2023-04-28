@@ -142,7 +142,7 @@ void _execvp(char *cmd, char **args, char **envp)
 	char *path_env = _getenv("PATH");
 	char *path_token, *cmd_path = NULL;
 
-	if (cmd[0] == '/')
+	if (cmd[0] == '/' || cmd[0] == ' ' || cmd[0] == '&')
 	{
 		execve(cmd, args, envp);
 		perror(cmd);

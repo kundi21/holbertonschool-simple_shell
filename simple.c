@@ -31,7 +31,7 @@ int main(int argc, char *argv[], char *envp[])
 
 		ret = getline(&buffer, &bufsize, stdin);
 
-		if (ret == -1)
+		if (strcmp(buffer, "exit") == 0 || ret == -1)
 		{
 			free(buffer);
 			break;

@@ -31,7 +31,7 @@ int main(int argc, char *argv[], char *envp[])
 
 		ret = getline(&buffer, &bufsize, stdin);
 
-		if (strcmp(buffer, "exit") == 0 || ret == -1)
+		if (ret == -1)
 		{
 			free(buffer);
 			break;
@@ -40,6 +40,11 @@ int main(int argc, char *argv[], char *envp[])
 		for (i = 0; (tokens[i] = strtok(buffer, " \n")); i++)
 			buffer = NULL;
 
+		if (strcmp(tokens[0], "exit") == 0)
+		{
+			free(buffer);
+			exit(EXIT_SUCCESS);
+		}
 		tokens[i] = NULL;
 
 		if (tokens[0] != NULL)

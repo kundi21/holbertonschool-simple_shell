@@ -14,10 +14,10 @@
 
 int main(int argc, char *argv[], char *envp[])
 {
-	char *buffer = NULL, *tokens[64];
+	int i = 0;
+	char *buffer = NULL, *token, *tokens[64];
 	size_t bufsize = 0;
 	ssize_t ret = 0;
-	int i = 0;
 	(void)argc;
 	(void)argv;
 
@@ -49,16 +49,20 @@ int main(int argc, char *argv[], char *envp[])
 
 		tokens[i] = NULL;
 
-		processes(tokens, envp);
-		free(tokens[0]);
-
-		if (buffer != NULL)
+		if (tokens[0] != NULL)
 		{
-			free(buffer);
-			buffer = NULL;
+			processes(tokens, envp);
+			token = strtok(buffer, " \n");
+			while (token != NULL)
+			{
+				tokens[i] = token;
+				i++;
+				token = strtok(NULL, " \n");
+			}
 		}
 
-		bufsize = 0;
+		free(*tokens);
+		tokens[0] = NULL;
 		free(buffer);
 		buffer = NULL;
 	}
@@ -82,7 +86,6 @@ int processes(char **tokens, char **envp)
 
 	if (pid == -1)
 	{
-		free(tokens);
 		return (EXIT_FAILURE);
 	}
 
@@ -91,14 +94,9 @@ int processes(char **tokens, char **envp)
 		_execvp(tokens[0], tokens, envp);
 		exit(EXIT_FAILURE);
 	}
-	else if (pid > 0)
+	else
 	{
 		wait(NULL);
-	}
-	else 
-	{
-		free(tokens);
-		return (EXIT_FAILURE);
 	}
 	return (0);
 }
@@ -164,7 +162,6 @@ void _execvp(char *cmd, char **args, char **envp)
 		if (execve(cmd_path, args, envp) == -1)
 		{
 			free(cmd_path);
-			cmd_path = NULL;
 			path_env = NULL;
 			continue;
 		}
@@ -178,7 +175,7 @@ void _execvp(char *cmd, char **args, char **envp)
 	if (cmd_path != NULL)
 		free(cmd_path);
 
-	fprintf(stderr, "%s: No such file or directory\n", args[0]);
+	fprintf(stderr, "%s: %s: No such file or directory\n", args[0], args[0]);
 	free(path_env);
 	exit(EXIT_FAILURE);
 }

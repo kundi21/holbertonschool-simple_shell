@@ -15,7 +15,7 @@
 int main(int argc, char *argv[], char *envp[])
 {
 	char *buffer = NULL, *tokens[64];
-	size_t bufsize;
+	size_t bufsize = 0;
 	ssize_t ret = 0;
 	int i = 0;
 	(void)argc;
@@ -31,9 +31,10 @@ int main(int argc, char *argv[], char *envp[])
 
 		ret = getline(&buffer, &bufsize, stdin);
 
-		if (ret == -1)
+		if (ret == -1 || buffer == NULL)
 		{
 			free(buffer);
+			buffer = NULL;
 			break;
 		}
 
@@ -45,14 +46,21 @@ int main(int argc, char *argv[], char *envp[])
 			free(buffer);
 			exit(EXIT_SUCCESS);
 		}
+
 		tokens[i] = NULL;
 
-		if (tokens[0] != NULL)
-			processes(tokens, envp);
+		processes(tokens, envp);
+		free(tokens[0]);
 
+		if (buffer != NULL)
+		{
+			free(buffer);
+			buffer = NULL;
+		}
+
+		bufsize = 0;
 		free(buffer);
 		buffer = NULL;
-		i = 0;
 	}
 	return (0);
 }
@@ -74,7 +82,8 @@ int processes(char **tokens, char **envp)
 
 	if (pid == -1)
 	{
-		return (-1);
+		free(tokens);
+		return (EXIT_FAILURE);
 	}
 
 	if (pid == 0)
@@ -82,9 +91,14 @@ int processes(char **tokens, char **envp)
 		_execvp(tokens[0], tokens, envp);
 		exit(EXIT_FAILURE);
 	}
-	else
+	else if (pid > 0)
 	{
 		wait(NULL);
+	}
+	else 
+	{
+		free(tokens);
+		return (EXIT_FAILURE);
 	}
 	return (0);
 }
@@ -126,7 +140,7 @@ char *_getenv(const char *name)
 void _execvp(char *cmd, char **args, char **envp)
 {
 	char *path_env = _getenv("PATH");
-	char *path_token;
+	char *path_token, *cmd_path = NULL;
 
 	if (cmd[0] == '/')
 	{
@@ -137,7 +151,8 @@ void _execvp(char *cmd, char **args, char **envp)
 
 	while ((path_token = strtok(path_env, ":")) != NULL)
 	{
-		char *cmd_path = malloc(strlen(path_token) + strlen(cmd) + 2);
+		cmd_path = malloc(strlen(path_token) + strlen(cmd) + 2);
+		
 		if (cmd_path == NULL)
 		{
 			perror("malloc");
@@ -149,6 +164,7 @@ void _execvp(char *cmd, char **args, char **envp)
 		if (execve(cmd_path, args, envp) == -1)
 		{
 			free(cmd_path);
+			cmd_path = NULL;
 			path_env = NULL;
 			continue;
 		}
@@ -159,6 +175,9 @@ void _execvp(char *cmd, char **args, char **envp)
 			return;
 		}
 	}
+	if (cmd_path != NULL)
+		free(cmd_path);
+
 	fprintf(stderr, "%s: No such file or directory\n", args[0]);
 	free(path_env);
 	exit(EXIT_FAILURE);

@@ -45,7 +45,7 @@ int main(int argc, char *argv[], char *envp[])
 		tokens[i] = NULL;
 		if (tokens[0] != NULL && strlen(tokens[0]) > 0)
 			processes(tokens, envp);
-		free(tokens[i]);
+		free(tokens[0]), tokens[i] = NULL;
 
 		free(buffer), buffer = NULL;
 	}

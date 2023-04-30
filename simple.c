@@ -32,21 +32,20 @@ int main(int argc, char *argv[], char *envp[])
 		for (i = 0; (tokens[i] = strtok(buffer, " \n")); i++)
 			buffer = NULL;
 
-		if (tokens[i] != NULL && strcmp(tokens[0], "exit") == 0)
+		if (tokens[0] != NULL && strcmp(tokens[0], "exit") == 0)
 		{
 			free(buffer);
 			buffer = NULL;
-			for (i = 0; tokens[i] != NULL; i++)
-			{
-			free(tokens[i]);
-			tokens[i] = NULL;
-			}
+			free(tokens[i - 1]);
+			tokens[i - 1] = NULL;
+			free(*tokens);
 			exit(EXIT_SUCCESS);
 		}
 
 		tokens[i] = NULL;
 		if (tokens[0] != NULL && strlen(tokens[0]) > 0)
 			processes(tokens, envp);
+		free(tokens[i]);
 
 		free(buffer), buffer = NULL;
 	}
@@ -127,26 +126,20 @@ void _execvp(char *cmd, char **args, char **envp)
 
 	if (cmd[0] == '/')
 	{
-		execve(cmd, args, envp);
-		perror(cmd);
-		free(path_env);
-		free(path_copy);
-		exit(2);
+		execve(cmd, args, envp), perror(cmd);
+		free(path_env), free(path_copy), exit(2);
 	}
 
 	new_path_copy = malloc(strlen(path_copy) + 3);
 	if (new_path_copy == NULL)
 	{
 		perror("malloc");
-		free(path_copy);
-		free(path_env);
-		exit(EXIT_FAILURE);
+		free(path_copy), free(path_env), exit(EXIT_FAILURE);
 	}
 
 	sprintf(new_path_copy, ".:%s", path_copy);
 	free(path_copy);
 	path_copy = new_path_copy;
-
 	path_token = strtok(path_copy, ":");
 	while (path_token != NULL)
 	{
@@ -155,20 +148,16 @@ void _execvp(char *cmd, char **args, char **envp)
 		if (cmd_path == NULL)
 		{
 			perror("malloc");
-			free(path_copy);
-			free(path_env);
-			exit(EXIT_FAILURE);
+			free(path_copy), free(path_env), exit(EXIT_FAILURE);
 		}
 
 		sprintf(cmd_path, "%s/%s", path_token, cmd);
 
 		execve(cmd_path, args, envp);
-		free(cmd_path);
-		cmd_path = NULL;
+		free(cmd_path), cmd_path = NULL;
 		path_token = strtok(NULL, ":");
 	}
-	free(path_copy);
-	free(path_env);
+	free(path_copy), free(path_env);
 	fprintf(stderr, "%s: %s: No such file or directory\n", args[0], cmd);
 	exit(2);
 }

@@ -32,7 +32,7 @@ int main(int argc, char *argv[], char *envp[])
 		for (i = 0; (tokens[i] = strtok(buffer, " \n")); i++)
 			buffer = NULL;
 
-		if (strcmp(tokens[0], "exit") == 0)
+		if (tokens[i] != NULL && strcmp(tokens[0], "exit") == 0)
 		{
 			free(buffer);
 			buffer = NULL;

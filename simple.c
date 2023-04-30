@@ -15,57 +15,42 @@
 int main(int argc, char *argv[], char *envp[])
 {
 	int i = 0;
-	char *buffer = NULL, *token, *tokens[64];
+	char *buffer = NULL,  *tokens[64] = {NULL};
 	size_t bufsize = 0;
 	ssize_t ret = 0;
-	(void)argc;
-	(void)argv;
+	(void)argc, (void)argv;
 
 	while (1)
 	{
 		if (isatty(STDIN_FILENO) == 1)
-		{
-			printf("$ ");
-			fflush(stdout);
-		}
+			printf("$ "), fflush(stdout);
 
 		ret = getline(&buffer, &bufsize, stdin);
-
 		if (ret == -1 || buffer == NULL)
-		{
-			free(buffer);
-			buffer = NULL;
-			break;
-		}
+			free(buffer), buffer = NULL, exit(EXIT_FAILURE);
 
 		for (i = 0; (tokens[i] = strtok(buffer, " \n")); i++)
 			buffer = NULL;
 
-		if (strcmp(tokens[0], "exit") == 0)
+		if (tokens[0] != NULL && strcmp(tokens[0], "exit") == 0)
 		{
 			free(buffer);
-			free(*tokens);
+			buffer = NULL;
+			free(tokens[i - 1]);
+			tokens[i - 1] = NULL;
 			exit(EXIT_SUCCESS);
 		}
 
 		tokens[i] = NULL;
-
-		if (tokens[0] != NULL)
+		if (tokens[0] != NULL && strlen(tokens[0]) > 0)
 		{
 			processes(tokens, envp);
-			token = strtok(buffer, " \n");
-			while (token != NULL)
-			{
-				tokens[i] = token;
-				i++;
-				token = strtok(NULL, " \n");
-			}
+			for (i = 0; tokens[i] != NULL; i++)
+				;
+			free(tokens[i]);
 		}
 
-		free(*tokens);
-		tokens[0] = NULL;
-		free(buffer);
-		buffer = NULL;
+		free(buffer), buffer = NULL;
 	}
 	return (0);
 }
@@ -79,7 +64,7 @@ int main(int argc, char *argv[], char *envp[])
  * Return: different cases for the comand line inputs
  */
 
-int processes(char **tokens, char **envp)
+void processes(char **tokens, char **envp)
 {
 	pid_t pid;
 
@@ -87,19 +72,18 @@ int processes(char **tokens, char **envp)
 
 	if (pid == -1)
 	{
-		return (EXIT_FAILURE);
+		perror("fork");
+		exit(EXIT_FAILURE);
 	}
 
 	if (pid == 0)
 	{
 		_execvp(tokens[0], tokens, envp);
-		exit(EXIT_FAILURE);
 	}
 	else
 	{
 		wait(NULL);
 	}
-	return (0);
 }
 
 /**
@@ -114,10 +98,11 @@ char *_getenv(const char *name)
 {
 	int i;
 	char *envp = NULL;
+	size_t len = strlen(name);
 
 	for (i = 0; environ[i] != NULL; i++)
 	{
-		if (strncmp(environ[i], name, strlen(name)) == 0)
+		if (strncmp(environ[i], name, len) == 0 && environ[i][len] == '=')
 		{
 			envp = strdup(environ[i] + strlen(name) + 1);
 			return (envp);
@@ -139,44 +124,40 @@ char *_getenv(const char *name)
 void _execvp(char *cmd, char **args, char **envp)
 {
 	char *path_env = _getenv("PATH");
-	char *path_token, *cmd_path = NULL;
+	char *path_copy = strdup(path_env);
+	char *path_token = NULL, *cmd_path = NULL;
 
 	if (cmd[0] == '/')
 	{
 		execve(cmd, args, envp);
 		perror(cmd);
-		exit(127);
+		exit(2);
 	}
 
-	while ((path_token = strtok(path_env, ":")) != NULL)
+	strcpy(path_copy, ".:");
+	strcat(path_copy, path_env);
+
+	path_token = strtok(path_copy, ":");
+	while (path_token != NULL)
 	{
 		cmd_path = malloc(strlen(path_token) + strlen(cmd) + 2);
-		
+
 		if (cmd_path == NULL)
 		{
+			free(cmd_path);
 			perror("malloc");
 			exit(EXIT_FAILURE);
 		}
 
 		sprintf(cmd_path, "%s/%s", path_token, cmd);
 
-		if (execve(cmd_path, args, envp) == -1)
-		{
-			free(cmd_path);
-			path_env = NULL;
-			continue;
-		}
-		else
-		{
-			free(cmd_path);
-			free(path_env);
-			return;
-		}
-	}
-	if (cmd_path != NULL)
+		execve(cmd_path, args, envp);
 		free(cmd_path);
-
-	fprintf(stderr, "%s: %s: No such file or directory\n", args[0], args[0]);
+		cmd_path = NULL;
+		path_token = strtok(NULL, ":");
+	}
+	free(path_copy);
 	free(path_env);
-	exit(EXIT_FAILURE);
+	fprintf(stderr, "%s: %s: No such file or directory\n", args[0], cmd);
+	exit(2);
 }

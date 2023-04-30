@@ -18,6 +18,6 @@ extern char **environ;
 int main(int argc, char *argv[], char *envp[]);
 char *_getenv(const char *name);
 void _execvp(char *cmd, char **args, char **envp);
-int processes(char **tokens, char **envp);
+void processes(char **tokens, char **envp);
 
 #endif

@@ -17,7 +17,7 @@ int main(int argc, char *argv[], char *envp[])
 	int i = 0;
 	char *buffer = NULL,  *tokens[64] = {NULL};
 	size_t bufsize = 0;
-	ssize_t ret = 0;
+	ssize_t ret;
 	(void)argc, (void)argv;
 
 	while (1)
@@ -45,9 +45,7 @@ int main(int argc, char *argv[], char *envp[])
 		if (tokens[0] != NULL && strlen(tokens[0]) > 0)
 		{
 			processes(tokens, envp);
-			for (i = 0; tokens[i] != NULL; i++)
-				;
-			free(tokens[i]);
+			free(buffer);
 		}
 
 		free(buffer), buffer = NULL;
@@ -125,17 +123,29 @@ void _execvp(char *cmd, char **args, char **envp)
 {
 	char *path_env = _getenv("PATH");
 	char *path_copy = strdup(path_env);
-	char *path_token = NULL, *cmd_path = NULL;
+	char *path_token = NULL, *cmd_path = NULL, *new_path_copy = NULL;
 
 	if (cmd[0] == '/')
 	{
 		execve(cmd, args, envp);
 		perror(cmd);
+		free(path_env);
+		free(path_copy);
 		exit(2);
 	}
 
-	strcpy(path_copy, ".:");
-	strcat(path_copy, path_env);
+	new_path_copy = malloc(strlen(path_copy) + 3);
+	if (new_path_copy == NULL)
+	{
+		perror("malloc");
+		free(path_copy);
+		free(path_env);
+		exit(EXIT_FAILURE);
+	}
+
+	sprintf(new_path_copy, ".:%s", path_copy);
+	free(path_copy);
+	path_copy = new_path_copy;
 
 	path_token = strtok(path_copy, ":");
 	while (path_token != NULL)
@@ -144,8 +154,9 @@ void _execvp(char *cmd, char **args, char **envp)
 
 		if (cmd_path == NULL)
 		{
-			free(cmd_path);
 			perror("malloc");
+			free(path_copy);
+			free(path_env);
 			exit(EXIT_FAILURE);
 		}
 

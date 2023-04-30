@@ -36,8 +36,8 @@ int main(int argc, char *argv[], char *envp[])
 		{
 			free(buffer);
 			buffer = NULL;
-			free(tokens[i - 1]);
-			tokens[i - 1] = NULL;
+			free(tokens[i]);
+			tokens[i] = NULL;
 			free(*tokens);
 			exit(EXIT_SUCCESS);
 		}

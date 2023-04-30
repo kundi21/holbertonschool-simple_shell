@@ -32,21 +32,21 @@ int main(int argc, char *argv[], char *envp[])
 		for (i = 0; (tokens[i] = strtok(buffer, " \n")); i++)
 			buffer = NULL;
 
-		if (tokens[0] != NULL && strcmp(tokens[0], "exit") == 0)
+		if (strcmp(tokens[0], "exit") == 0)
 		{
 			free(buffer);
 			buffer = NULL;
-			free(tokens[i - 1]);
-			tokens[i - 1] = NULL;
+			for (i = 0; tokens[i] != NULL; i++)
+			{
+			free(tokens[i]);
+			tokens[i] = NULL;
+			}
 			exit(EXIT_SUCCESS);
 		}
 
 		tokens[i] = NULL;
 		if (tokens[0] != NULL && strlen(tokens[0]) > 0)
-		{
 			processes(tokens, envp);
-			free(buffer);
-		}
 
 		free(buffer), buffer = NULL;
 	}

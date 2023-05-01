@@ -61,7 +61,7 @@ int main(int argc, char *argv[], char *envp[])
  * Return: different cases for the comand line inputs
  */
 
-void processes(char **tokens, char **envp)
+int processes(char **tokens, char **envp)
 {
 	pid_t pid;
 
@@ -81,6 +81,7 @@ void processes(char **tokens, char **envp)
 	{
 		wait(NULL);
 	}
+	return (0);
 }
 
 /**

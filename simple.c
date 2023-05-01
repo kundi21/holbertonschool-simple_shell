@@ -17,7 +17,7 @@ int main(int argc, char *argv[], char *envp[])
 	int i = 0;
 	char *buffer = NULL,  *tokens[64] = {NULL};
 	size_t bufsize = 0;
-	ssize_t ret;
+	ssize_t ret = 0;
 	(void)argc, (void)argv;
 
 	while (1)
@@ -45,9 +45,9 @@ int main(int argc, char *argv[], char *envp[])
 		tokens[i] = NULL;
 		if (tokens[0] != NULL && strlen(tokens[0]) > 0)
 			processes(tokens, envp);
-		free(tokens[0]), tokens[i] = NULL;
+		free(tokens[0]);
 
-		free(buffer), buffer = NULL;
+		free(buffer), buffer = NULL, i = 0;
 	}
 	return (0);
 }
@@ -123,14 +123,28 @@ void _execvp(char *cmd, char **args, char **envp)
 {
 	char *path_env = _getenv("PATH");
 	char *path_copy = strdup(path_env);
-	char *path_token = NULL, *cmd_path = NULL;
+	char *path_token = NULL, *cmd_path = NULL, *new_path_copy = NULL;
 
 	if (cmd[0] == '/')
 	{
-		execve(cmd, args, envp), perror(cmd);
-		free(path_env), exit(2);
+		if (execve(cmd, args, envp) == -1)
+		{
+			perror(cmd);
+			free(path_env), free(path_copy), exit(127);
+		}
 	}
 
+	new_path_copy = malloc(strlen(path_copy) + 3);
+	if (new_path_copy == NULL)
+	{
+		perror("malloc");
+		free(path_copy), free(path_env), exit(EXIT_FAILURE);
+	}
+
+	sprintf(new_path_copy, ".:%s", path_copy);
+	free(path_copy);
+	path_copy = new_path_copy;
+	path_token = strtok(path_copy, ":");
 	while (path_token != NULL)
 	{
 		cmd_path = malloc(strlen(path_token) + strlen(cmd) + 2);
@@ -145,8 +159,9 @@ void _execvp(char *cmd, char **args, char **envp)
 
 		execve(cmd_path, args, envp);
 		free(cmd_path), cmd_path = NULL;
+		path_token = strtok(NULL, ":");
 	}
-	free(path_env);
-	fprintf(stderr, "%s: %s: No such file or directory\n", args[0], cmd);
-	exit(2);
+	fprintf(stderr, "%s: %s: No such command file or directory\n", args[0], cmd);
+	free(path_copy), free(path_env), free(cmd_path);
+	exit(EXIT_FAILURE);
 }

@@ -106,6 +106,7 @@ char *_getenv(const char *name)
 			return (envp);
 		}
 	}
+	free(envp);
 	return (NULL);
 }
 

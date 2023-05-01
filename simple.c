@@ -43,11 +43,10 @@ int main(int argc, char *argv[], char *envp[])
 		}
 
 		tokens[i] = NULL;
-		if (tokens[0] != NULL && strlen(tokens[0]) > 0)
-			processes(tokens, envp);
+		processes(tokens, envp);
 		free(tokens[0]);
 
-		free(buffer), buffer = NULL, i = 0;
+		free(buffer), buffer = NULL, bufsize = 0;
 	}
 	return (0);
 }
@@ -70,16 +69,23 @@ int processes(char **tokens, char **envp)
 	if (pid == -1)
 	{
 		perror("fork");
+		free(tokens);
 		exit(EXIT_FAILURE);
 	}
 
 	if (pid == 0)
 	{
 		_execvp(tokens[0], tokens, envp);
+		exit(EXIT_FAILURE);
+	}
+	else if (pid > 0)
+	{
+		wait(NULL);
 	}
 	else
 	{
-		wait(NULL);
+		free(tokens);
+		return (EXIT_FAILURE);
 	}
 	return (0);
 }
@@ -162,6 +168,8 @@ void _execvp(char *cmd, char **args, char **envp)
 		free(cmd_path), cmd_path = NULL;
 		path_token = strtok(NULL, ":");
 	}
+	if (cmd_path != NULL)
+		free(cmd_path);
 	fprintf(stderr, "%s: %s: No such command file or directory\n", args[0], cmd);
 	free(path_copy), free(path_env), free(cmd_path);
 	exit(EXIT_FAILURE);

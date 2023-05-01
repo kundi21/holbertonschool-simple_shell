@@ -70,7 +70,7 @@ int processes(char **tokens, char **envp)
 	{
 		perror("fork");
 		free(tokens);
-		exit(EXIT_FAILURE);
+		exit(EXIT_SUCCESS);
 	}
 
 	if (pid == 0)
@@ -85,7 +85,7 @@ int processes(char **tokens, char **envp)
 	else
 	{
 		free(tokens);
-		return (EXIT_FAILURE);
+		return (EXIT_SUCCESS);
 	}
 	return (0);
 }
@@ -137,7 +137,7 @@ void _execvp(char *cmd, char **args, char **envp)
 		if (execve(cmd, args, envp) == -1)
 		{
 			perror(cmd);
-			free(path_env), free(path_copy), exit(127);
+			free(path_env), free(path_copy), exit(EXIT_SUCCESS);
 		}
 	}
 
@@ -172,5 +172,5 @@ void _execvp(char *cmd, char **args, char **envp)
 		free(cmd_path);
 	fprintf(stderr, "%s: %s: No such command file or directory\n", args[0], cmd);
 	free(path_copy), free(path_env), free(cmd_path);
-	exit(EXIT_FAILURE);
+	exit(EXIT_SUCCESS);
 }

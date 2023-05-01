@@ -70,7 +70,7 @@ int processes(char **tokens, char **envp)
 	{
 		perror("fork");
 		free(tokens);
-		exit(EXIT_SUCCESS);
+		exit(EXIT_FAILURE);
 	}
 
 	if (pid == 0)

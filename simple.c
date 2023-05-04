@@ -47,9 +47,8 @@ int main(int argc, char *argv[], char *envp[])
 		free(tokens[0]);
 
 		free(buffer), buffer = NULL, bufsize = 0;
-		exit(EXIT_SUCCESS);
 	}
-	return (0);
+	exit(EXIT_SUCCESS);
 }
 
 /**

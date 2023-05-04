@@ -46,10 +46,8 @@ int main(int argc, char *argv[], char *envp[])
 		processes(tokens, envp);
 		free(tokens[0]);
 
-		if (buffer != NULL)
-			free(buffer), buffer = NULL;
-
 		free(buffer), buffer = NULL, bufsize = 0;
+		exit(EXIT_SUCCESS);
 	}
 	return (0);
 }

@@ -27,10 +27,7 @@ int main(int argc, char *argv[], char *envp[])
 
 		ret = getline(&buffer, &bufsize, stdin);
 		if (ret == -1 || buffer == NULL)
-		{
 			free(buffer), buffer = NULL;
-			break;
-		}
 
 		for (i = 0; (tokens[i] = strtok(buffer, " \n")); i++)
 			buffer = NULL;

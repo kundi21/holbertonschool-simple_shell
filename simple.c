@@ -27,7 +27,7 @@ int main(int argc, char *argv[], char *envp[])
 
 		ret = getline(&buffer, &bufsize, stdin);
 		if (ret == -1 || buffer == NULL)
-			free(buffer), buffer = NULL;
+			free(buffer), buffer = NULL, break;
 
 		for (i = 0; (tokens[i] = strtok(buffer, " \n")); i++)
 			buffer = NULL;
@@ -45,6 +45,9 @@ int main(int argc, char *argv[], char *envp[])
 		tokens[i] = NULL;
 		processes(tokens, envp);
 		free(tokens[0]);
+
+		if (buffer != NULL)
+			free(buffer), buffer = NULL;
 
 		free(buffer), buffer = NULL, bufsize = 0;
 	}
@@ -112,7 +115,6 @@ char *_getenv(const char *name)
 			return (envp);
 		}
 	}
-	free(envp);
 	return (NULL);
 }
 
@@ -170,7 +172,7 @@ void _execvp(char *cmd, char **args, char **envp)
 	}
 	if (cmd_path != NULL)
 		free(cmd_path);
-	fprintf(stderr, "%s: %s: No such command file or directory\n", args[0], cmd);
+	fprintf(stderr, "%s: %s: No such file or directory\n", args[0], cmd);
 	free(path_copy), free(path_env), free(cmd_path);
 	exit(EXIT_FAILURE);
 }
